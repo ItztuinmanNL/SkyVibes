@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "skyvibes",
+  "version": "${version}",
+  "name": "SkyVibes",
+  "description": "Client-side sky themes and animated floating lyric visuals.",
+  "authors": ["SkyVibes Team"],
+  "contact": {},
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["nl.skyvibes.SkyVibesClient"]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "minecraft": "26.2",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
+}
