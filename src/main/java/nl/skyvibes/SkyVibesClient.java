@@ -1,41 +1,35 @@
 package nl.skyvibes;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.loader.api.FabricLoader;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.Identifier;
 
-/** Initial client entrypoint for SkyVibes. */
 public final class SkyVibesClient implements ClientModInitializer {
+    private static final KeyMapping.Category CATEGORY =
+            KeyMapping.Category.register(Identifier.fromNamespaceAndPath("skyvibes", "main"));
+
     @Override
     public void onInitializeClient() {
-        createDefaultConfig();
-        System.out.println("[SkyVibes] Client initialized. Welcome to the vibe.");
-    }
+        SkyVibesConfig.load();
 
-    private void createDefaultConfig() {
-        Path config = FabricLoader.getInstance().getConfigDir().resolve("skyvibes.json");
-        if (Files.exists(config)) return;
+        KeyMapping openMenu = KeyBindingHelper.registerKeyMapping(new KeyMapping(
+                "key.skyvibes.open_menu",
+                InputConstants.Type.KEYSYM,
+                InputConstants.KEY_RIGHT_SHIFT,
+                CATEGORY
+        ));
 
-        String defaults = """
-                {
-                  \"skyTheme\": \"galaxy\",
-                  \"lyricsEnabled\": false,
-                  \"pvpLyricsEnabled\": false,
-                  \"pvpAnimation\": \"circle\",
-                  \"font\": \"minecraft\",
-                  \"textColor\": \"#9B6CFF\",
-                  \"glow\": true,
-                  \"animationSpeed\": 1.0
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            while (openMenu.consumeClick()) {
+                if (client.player != null && client.gui.screen() == null) {
+                    client.gui.setScreen(new SkyVibesScreen());
                 }
-                """;
-        try {
-            Files.createDirectories(config.getParent());
-            Files.writeString(config, defaults, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            System.err.println("[SkyVibes] Could not create config: " + e.getMessage());
-        }
+            }
+        });
+        System.out.println("[SkyVibes] Menu keybind registered.");
     }
 }
